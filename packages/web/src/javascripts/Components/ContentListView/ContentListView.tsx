@@ -1,7 +1,7 @@
 import { KeyboardKey, KeyboardModifier } from '@standardnotes/ui-services'
 import { WebApplication } from '@/Application/Application'
 import { PANEL_NAME_NOTES } from '@/Constants/Constants'
-import { FileItem, PrefKey, SystemViewId } from '@standardnotes/snjs'
+import { CollectionSort, FileItem, PrefKey, SystemViewId } from '@standardnotes/snjs'
 import { observer } from 'mobx-react-lite'
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef } from 'react'
 import ContentList from '@/Components/ContentListView/ContentList'
@@ -26,6 +26,8 @@ import { classNames } from '@/Utils/ConcatenateClassNames'
 import { MediaQueryBreakpoints, useMediaQuery } from '@/Hooks/useMediaQuery'
 import { useFileDragNDrop } from '../FileDragNDropProvider/FileDragNDropProvider'
 import { LinkingController } from '@/Controllers/LinkingController'
+import Calendar from '../Calendar/Calendar'
+import { CalendarActivity, CalendarActivityType } from '../Calendar/CalendarActivity'
 
 type Props = {
   accountMenuController: AccountMenuController
@@ -106,6 +108,7 @@ const ContentListView: FunctionComponent<Props> = ({
     panelTitle,
     panelWidth,
     renderedItems,
+    items,
     searchBarElement,
   } = itemListController
 
@@ -227,6 +230,18 @@ const ContentListView: FunctionComponent<Props> = ({
   const matchesXLBreakpoint = useMediaQuery(MediaQueryBreakpoints.xl)
   const isTabletScreenSize = matchesMediumBreakpoint && !matchesXLBreakpoint
 
+  const calendarActivityType: CalendarActivityType =
+    itemListController.sortBy === CollectionSort.UpdatedAt ? 'edited' : 'created'
+
+  const calendarActivities: CalendarActivity[] = useMemo(() => {
+    return items.map((item) => {
+      return {
+        day: calendarActivityType === 'created' ? item.created_at : item.userModifiedDate,
+        item: item,
+      }
+    })
+  }, [items])
+
   return (
     <div
       id="items-column"
@@ -279,8 +294,17 @@ const ContentListView: FunctionComponent<Props> = ({
             />
           </div>
         </div>
+        <Calendar
+          activities={calendarActivities}
+          activityType={itemListController.sortBy === CollectionSort.UpdatedAt ? 'edited' : 'created'}
+          onActivitySelect={(activity) => {
+            itemListController.selectItemAndPaginate(activity.item)
+          }}
+        />
+
         {completedFullSync && !renderedItems.length ? <p className="empty-items-list opacity-50">No items.</p> : null}
         {!completedFullSync && !renderedItems.length ? <p className="empty-items-list opacity-50">Loading...</p> : null}
+
         {renderedItems.length ? (
           <ContentList
             items={renderedItems}

@@ -20,6 +20,7 @@ import {
   WebAppEvent,
   NewNoteTitleFormat,
   useBoolean,
+  Uuid,
 } from '@standardnotes/snjs'
 import { action, computed, makeObservable, observable, reaction, runInAction } from 'mobx'
 import { WebApplication } from '../../Application/Application'
@@ -212,6 +213,7 @@ export class ItemListController
       panelTitle: observable,
       panelWidth: observable,
       renderedItems: observable,
+      items: observable,
       showDisplayOptionsMenu: observable,
 
       reloadItems: action,
@@ -561,6 +563,10 @@ export class ItemListController
     return { didReloadItems: true }
   }
 
+  public get sortBy() {
+    return this.displayOptions.sortBy
+  }
+
   async createNewNoteController(title?: string) {
     const selectedTag = this.navigationController.selected
 
@@ -635,6 +641,21 @@ export class ItemListController
     if (this.searchSubmitted) {
       this.application.getDesktopService()?.searchText(this.noteFilterText)
     }
+  }
+
+  selectItemAndPaginate = async (item: { uuid: Uuid }) => {
+    const index = this.items.findIndex((candidate) => candidate.uuid === item.uuid)
+
+    if (this.notesToDisplay < index) {
+      this.notesToDisplay = index + this.pageSize
+    }
+
+    await this.reloadItems(ItemsReloadSource.Pagination)
+
+    await this.selectionController.selectItemWithScrollHandling(item, {
+      userTriggered: true,
+      scrollIntoView: true,
+    })
   }
 
   resetPagination = (keepCurrentIfLarger = false) => {
