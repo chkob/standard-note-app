@@ -28,6 +28,7 @@ import { useFileDragNDrop } from '../FileDragNDropProvider/FileDragNDropProvider
 import { LinkingController } from '@/Controllers/LinkingController'
 import DailyContentList from './Daily/DailyContentList'
 import { ListableContentItem } from './Types/ListableContentItem'
+import { PaneController } from '@/Controllers/PaneController'
 
 type Props = {
   accountMenuController: AccountMenuController
@@ -40,6 +41,7 @@ type Props = {
   selectionController: SelectedItemsController
   searchOptionsController: SearchOptionsController
   linkingController: LinkingController
+  paneController: PaneController
 }
 
 const ContentListView: FunctionComponent<Props> = ({
@@ -53,6 +55,7 @@ const ContentListView: FunctionComponent<Props> = ({
   selectionController,
   searchOptionsController,
   linkingController,
+  paneController,
 }) => {
   const { isNotesListVisibleOnTablets, toggleAppPane } = useResponsiveAppPane()
 
@@ -259,6 +262,7 @@ const ContentListView: FunctionComponent<Props> = ({
       id="items-column"
       className={classNames(
         'sn-component section app-column flex h-full flex-col overflow-hidden pt-safe-top',
+        paneController.currentPane === AppPaneId.Items && 'selected',
         hasEditorPane ? 'xl:w-[24rem] xsm-only:!w-full sm-only:!w-full' : 'w-full md:min-w-[400px]',
         hasEditorPane
           ? isTabletScreenSize && !isNotesListVisibleOnTablets

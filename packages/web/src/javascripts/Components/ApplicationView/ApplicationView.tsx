@@ -216,6 +216,7 @@ const ApplicationView: FunctionComponent<Props> = ({ application, mainApplicatio
                   selectionController={viewControllerManager.selectionController}
                   searchOptionsController={viewControllerManager.searchOptionsController}
                   linkingController={viewControllerManager.linkingController}
+                  paneController={viewControllerManager.paneController}
                 />
                 <NoteGroupView application={application} />
               </FileDragNDropProvider>
