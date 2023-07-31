@@ -11,6 +11,7 @@ on:
 jobs:
   git-sync:
     runs-on: ubuntu-latest
+    if: ${{ github.repository == 'standardnotes/app' }}
     steps:
       - name: git-sync
         uses: wei/git-sync@v3
